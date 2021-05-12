@@ -2,12 +2,12 @@ let buildVersionSuffix = function (github) {
   return new Promise((resolve) => {
     if (!github) throw 'github context is required';
 
-    const eventName = github.event_name;
+    const eventName = github.eventName;
     const ref = github.ref;
-    const headRef = github.head_ref;
-    const runId = github.run_id;
-    const runNumber = github.run_number;
-    const releaseTypeInput = github.event_name === 'workflow_dispatch' ? github.event.inputs.releaseType : '';
+    const headRef = github.headRef;
+    const runId = github.runId;
+    const runNumber = github.runNumber;
+    const releaseTypeInput = github.eventName === 'workflow_dispatch' ? github.event.inputs.releaseType : '';
 
     let branchName = !headRef || headRef == '' ? ref : headRef;
     branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z-]/g, '-');
