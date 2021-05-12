@@ -1,24 +1,22 @@
-let buildVersionSuffix = function (github) {
+let buildVersionSuffix = function (github, releaseType) {
   return new Promise((resolve) => {
     if (!github) throw 'github context is required';
 
     const eventName = github.eventName;
     const ref = github.ref;
-    const headRef = github.pull_request ? github.pull_request.head.ref : '';
+    const headRef = github.payload.pull_request ? github.payload.pull_request.head.ref : '';
     const runId = github.runId;
     const runNumber = github.runNumber;
-    const releaseTypeInput = github.eventName === 'workflow_dispatch' ? github.event.inputs.releaseType : '';
 
     let branchName = !headRef || headRef == '' ? ref : headRef;
     branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z0-9-]/g, '-');
 
-    let releaseType = null;
     let includeBranchName = false;
     let includeBuildNumber = false;
 
     // set release type
     switch (eventName) {
-      case 'release': // always stable for releases
+      case 'release': // always stable or release candidate for releases
         releaseType = branchName === 'master' ? '' : 'rc';
         includeBuildNumber = branchName !== 'master';
         break;
@@ -33,7 +31,6 @@ let buildVersionSuffix = function (github) {
         includeBuildNumber = true;
         break;
       case 'workflow_dispatch':
-        releaseType = releaseTypeInput;
         if (releaseType === '') {
           throw new Error(`A stable version can only be created via a github release`);
         }
