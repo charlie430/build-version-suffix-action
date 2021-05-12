@@ -4,7 +4,7 @@ const buildVersionSuffix = require('./buildVersionSuffix');
 
 async function run() {
   try {
-    core.info('github context: ' + JSON.stringify(github.context));
+    core.info('github context: ' + JSON.stringify(github.context, null, 2));
     const versionSuffix = await buildVersionSuffix(github.context);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {

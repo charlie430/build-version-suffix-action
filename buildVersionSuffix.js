@@ -4,13 +4,13 @@ let buildVersionSuffix = function (github) {
 
     const eventName = github.eventName;
     const ref = github.ref;
-    const headRef = github.headRef;
+    const headRef = github.head ? github.head.ref : '';
     const runId = github.runId;
     const runNumber = github.runNumber;
     const releaseTypeInput = github.eventName === 'workflow_dispatch' ? github.event.inputs.releaseType : '';
 
     let branchName = !headRef || headRef == '' ? ref : headRef;
-    branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z-]/g, '-');
+    branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z0-9-]/g, '-');
 
     let releaseType = null;
     let includeBranchName = false;
