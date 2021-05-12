@@ -277,8 +277,7 @@ const buildVersionSuffix = __webpack_require__(779);
 
 async function run() {
   try {
-    core.info('github.context:');
-    core.info(github.context);
+    core.info('github context: ' + JSON.stringify(github.context));
     const versionSuffix = await buildVersionSuffix(github.context);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {
