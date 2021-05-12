@@ -199,10 +199,72 @@ function onceStrict (fn) {
 
 /***/ }),
 
+/***/ 82:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
 module.exports = require("os");
+
+/***/ }),
+
+/***/ 102:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+// For internal use, subject to change.
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__webpack_require__(747));
+const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
+function issueCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueCommand = issueCommand;
+//# sourceMappingURL=file-command.js.map
 
 /***/ }),
 
@@ -213,10 +275,12 @@ const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 const buildVersionSuffix = __webpack_require__(779);
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
-    const versionSuffix = await buildVersionSuffix(github.context);
+    core.debug('github context: ' + JSON.stringify(github.context, null, 2));
+    const releaseType = core.getInput('releaseType', { required: false, trimWhitespace: true  });
+    core.debug('releaseType: ' + releaseType);
+    const versionSuffix = await buildVersionSuffix(github.context, releaseType);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {
     core.setFailed(error.message);
@@ -1226,6 +1290,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
 /**
  * Commands
  *
@@ -1279,28 +1344,14 @@ class Command {
         return cmdStr;
     }
 }
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
 function escapeData(s) {
-    return toCommandValue(s)
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return toCommandValue(s)
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -3280,6 +3331,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(431);
+const file_command_1 = __webpack_require__(102);
+const utils_1 = __webpack_require__(82);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -3306,9 +3359,17 @@ var ExitCode;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    const convertedVal = command_1.toCommandValue(val);
+    const convertedVal = utils_1.toCommandValue(val);
     process.env[name] = convertedVal;
-    command_1.issueCommand('set-env', { name }, convertedVal);
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
+        file_command_1.issueCommand('ENV', commandValue);
+    }
+    else {
+        command_1.issueCommand('set-env', { name }, convertedVal);
+    }
 }
 exports.exportVariable = exportVariable;
 /**
@@ -3324,7 +3385,13 @@ exports.setSecret = setSecret;
  * @param inputPath
  */
 function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
 exports.addPath = addPath;
@@ -3351,6 +3418,7 @@ exports.getInput = getInput;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
+    process.stdout.write(os.EOL);
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
@@ -4493,27 +4561,25 @@ module.exports = require("zlib");
 /***/ 779:
 /***/ (function(module) {
 
-let buildVersionSuffix = function (github) {
+let buildVersionSuffix = function (github, releaseType) {
   return new Promise((resolve) => {
     if (!github) throw 'github context is required';
 
-    const eventName = github.event_name;
+    const eventName = github.eventName;
     const ref = github.ref;
-    const headRef = github.head_ref;
-    const runId = github.run_id;
-    const runNumber = github.run_number;
-    const releaseTypeInput = github.event_name === 'workflow_dispatch' ? github.event.inputs.releaseType : '';
+    const headRef = github.payload.pull_request ? github.payload.pull_request.head.ref : '';
+    const runId = github.runId;
+    const runNumber = github.runNumber;
 
     let branchName = !headRef || headRef == '' ? ref : headRef;
-    branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z-]/g, '-');
+    branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z0-9-]/g, '-');
 
-    let releaseType = null;
     let includeBranchName = false;
     let includeBuildNumber = false;
 
     // set release type
     switch (eventName) {
-      case 'release': // always stable for releases
+      case 'release': // always stable or release candidate for releases
         releaseType = branchName === 'master' ? '' : 'rc';
         includeBuildNumber = branchName !== 'master';
         break;
@@ -4528,7 +4594,6 @@ let buildVersionSuffix = function (github) {
         includeBuildNumber = true;
         break;
       case 'workflow_dispatch':
-        releaseType = releaseTypeInput;
         if (releaseType === '') {
           throw new Error(`A stable version can only be created via a github release`);
         }

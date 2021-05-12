@@ -2,10 +2,12 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const buildVersionSuffix = require('./buildVersionSuffix');
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
-    const versionSuffix = await buildVersionSuffix(github.context);
+    core.debug('github context: ' + JSON.stringify(github.context, null, 2));
+    const releaseType = core.getInput('releaseType', { required: false, trimWhitespace: true  });
+    core.debug('releaseType: ' + releaseType);
+    const versionSuffix = await buildVersionSuffix(github.context, releaseType);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {
     core.setFailed(error.message);
