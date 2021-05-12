@@ -1,0 +1,12 @@
+name: 'Build Version Suffix'
+description: 'Builds a version suffix used for publishing a package'
+inputs:
+  releaseType:
+    description: 'The release type; Options: [rc,beta,alpha]'
+    required: true
+outputs:
+  versionSuffix:
+    description: 'The version suffix'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
