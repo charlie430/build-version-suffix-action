@@ -4565,7 +4565,7 @@ let buildVersionSuffix = function (github) {
 
     const eventName = github.eventName;
     const ref = github.ref;
-    const headRef = github.head ? github.head.ref : '';
+    const headRef = github.pull_request ? github.pull_request.head.ref : '';
     const runId = github.runId;
     const runNumber = github.runNumber;
     const releaseTypeInput = github.eventName === 'workflow_dispatch' ? github.event.inputs.releaseType : '';
