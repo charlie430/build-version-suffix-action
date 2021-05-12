@@ -213,10 +213,10 @@ const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 const buildVersionSuffix = __webpack_require__(779);
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
     const versionSuffix = await buildVersionSuffix(github.context);
+    core.debug(github.context);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {
     core.setFailed(error.message);
