@@ -4,10 +4,10 @@ const buildVersionSuffix = require('./buildVersionSuffix');
 
 async function run() {
   try {
-    core.info('github context: ' + JSON.stringify(github.context, null, 2));
+    core.debug('github context: ' + JSON.stringify(github.context, null, 2));
     const releaseType = core.getInput('releaseType', { required: false, trimWhitespace: true  });
-    core.info('releaseType: ' + releaseType);
-    const versionSuffix = await buildVersionSuffix(releaseType, github.context);
+    core.debug('releaseType: ' + releaseType);
+    const versionSuffix = await buildVersionSuffix(github.context, releaseType);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {
     core.setFailed(error.message);

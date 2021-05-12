@@ -108,7 +108,7 @@ test('workflow_dispatch - master - alpha', async () => {
   expect(await bvs(github, releaseType)).toBe('alpha.1.2');
 });
 
-test('workflow_dispatch - branch - stable', async () => {
+test('workflow_dispatch - branch - unsupported', async () => {
   const github = {
     eventName: 'workflow_dispatch',
     ref: 'refs/pull/1/merge',
@@ -116,8 +116,8 @@ test('workflow_dispatch - branch - stable', async () => {
     runId: '1',
     runNumber: '2'
   };
-  const releaseType = '';
-  await expect(bvs(github, releaseType)).rejects.toThrow('A stable version can only be created via a github release');
+  const releaseType = 'foobar';
+  await expect(bvs(github, releaseType)).rejects.toThrow(`Unsupported release type '${releaseType}'`);
 });
 
 test('workflow_dispatch - branch - rc', async () => {
