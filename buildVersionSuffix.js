@@ -58,7 +58,7 @@ let buildVersionSuffix = function (github, releaseType) {
     }
     
     if (includeBuildNumber) {
-      vs += `.${runId}`;
+      vs += `-${runId}`;
     }
 
     resolve(vs);
