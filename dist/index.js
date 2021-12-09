@@ -4569,7 +4569,6 @@ let buildVersionSuffix = function (github, releaseType) {
     const ref = github.ref;
     const headRef = github.payload.pull_request ? github.payload.pull_request.head.ref : '';
     const runId = github.runId;
-    const runNumber = github.runNumber;
 
     let branchName = !headRef || headRef == '' ? ref : headRef;
     branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z0-9-]/g, '-');
@@ -4622,7 +4621,7 @@ let buildVersionSuffix = function (github, releaseType) {
     }
     
     if (includeBuildNumber) {
-      vs += `.${runId}.${runNumber}`;
+      vs += `-${runId}`;
     }
 
     resolve(vs);

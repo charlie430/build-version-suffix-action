@@ -5,8 +5,7 @@ test('release - master', async () => {
     eventName: 'release',
     ref: 'refs/heads/master',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = '';
   expect(await bvs(github, releaseType)).toBe('');
@@ -17,11 +16,10 @@ test('release - branch', async () => {
     eventName: 'release',
     ref: 'fix/some-bug',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('rc.1.2');
+  expect(await bvs(github, releaseType)).toBe('rc-1');
 });
 
 test('push - master', async () => {
@@ -29,11 +27,10 @@ test('push - master', async () => {
     eventName: 'push',
     ref: 'refs/heads/master',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('beta.1.2');
+  expect(await bvs(github, releaseType)).toBe('beta-1');
 });
 
 test('push - branch', async () => {
@@ -41,11 +38,10 @@ test('push - branch', async () => {
     eventName: 'push',
     ref: 'version/x',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('beta-version-x.1.2');
+  expect(await bvs(github, releaseType)).toBe('beta-version-x-1');
 });
 
 test('pull_request - branch', async () => {
@@ -53,11 +49,10 @@ test('pull_request - branch', async () => {
     eventName: 'pull_request',
     ref: 'refs/pull/1/merge',
     payload: { pull_request: { head: { ref: 'fix/some-bug' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug.1.2');
+  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug-1');
 });
 
 test('workflow_dispatch - master - stable', async () => {
@@ -65,8 +60,7 @@ test('workflow_dispatch - master - stable', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/heads/master',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = '';
   await expect(bvs(github, releaseType)).rejects.toThrow('A stable version can only be created via a github release');
@@ -77,11 +71,10 @@ test('workflow_dispatch - master - rc', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/heads/master',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'rc';
-  expect(await bvs(github, releaseType)).toBe('rc.1.2');
+  expect(await bvs(github, releaseType)).toBe('rc-1');
 });
 
 test('workflow_dispatch - master - beta', async () => {
@@ -89,11 +82,10 @@ test('workflow_dispatch - master - beta', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/heads/master',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'beta';
-  expect(await bvs(github, releaseType)).toBe('beta.1.2');
+  expect(await bvs(github, releaseType)).toBe('beta-1');
 });
 
 test('workflow_dispatch - master - alpha', async () => {
@@ -101,11 +93,10 @@ test('workflow_dispatch - master - alpha', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/heads/master',
     payload: { pull_request: { head: { ref: '' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'alpha';
-  expect(await bvs(github, releaseType)).toBe('alpha.1.2');
+  expect(await bvs(github, releaseType)).toBe('alpha-1');
 });
 
 test('workflow_dispatch - branch - unsupported', async () => {
@@ -113,8 +104,7 @@ test('workflow_dispatch - branch - unsupported', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/pull/1/merge',
     payload: { pull_request: { head: { ref: 'fix/some-bug' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'foobar';
   await expect(bvs(github, releaseType)).rejects.toThrow(`Unsupported release type '${releaseType}'`);
@@ -125,11 +115,10 @@ test('workflow_dispatch - branch - rc', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/pull/1/merge',
     payload: { pull_request: { head: { ref: 'fix/some-bug' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'rc';
-  expect(await bvs(github, releaseType)).toBe('rc-fix-some-bug.1.2');
+  expect(await bvs(github, releaseType)).toBe('rc-fix-some-bug-1');
 });
 
 test('workflow_dispatch - branch - beta', async () => {
@@ -137,11 +126,10 @@ test('workflow_dispatch - branch - beta', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/pull/1/merge',
     payload: { pull_request: { head: { ref: 'fix/some-bug' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'beta';
-  expect(await bvs(github, releaseType)).toBe('beta-fix-some-bug.1.2');
+  expect(await bvs(github, releaseType)).toBe('beta-fix-some-bug-1');
 });
 
 test('workflow_dispatch - branch - alpha', async () => {
@@ -149,9 +137,8 @@ test('workflow_dispatch - branch - alpha', async () => {
     eventName: 'workflow_dispatch',
     ref: 'refs/pull/1/merge',
     payload: { pull_request: { head: { ref: 'fix/some-bug' } } },
-    runId: '1',
-    runNumber: '2'
+    runId: '1'
   };
   const releaseType = 'alpha';
-  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug.1.2');
+  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug-1');
 });
