@@ -19,7 +19,7 @@ test('release - branch', async () => {
     runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('rc.1');
+  expect(await bvs(github, releaseType)).toBe('rc-1');
 });
 
 test('push - master', async () => {
@@ -30,7 +30,7 @@ test('push - master', async () => {
     runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('beta.1');
+  expect(await bvs(github, releaseType)).toBe('beta-1');
 });
 
 test('push - branch', async () => {
@@ -41,7 +41,7 @@ test('push - branch', async () => {
     runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('beta-version-x.1');
+  expect(await bvs(github, releaseType)).toBe('beta-version-x-1');
 });
 
 test('pull_request - branch', async () => {
@@ -52,7 +52,7 @@ test('pull_request - branch', async () => {
     runId: '1'
   };
   const releaseType = '';
-  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug.1');
+  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug-1');
 });
 
 test('workflow_dispatch - master - stable', async () => {
@@ -74,7 +74,7 @@ test('workflow_dispatch - master - rc', async () => {
     runId: '1'
   };
   const releaseType = 'rc';
-  expect(await bvs(github, releaseType)).toBe('rc.1');
+  expect(await bvs(github, releaseType)).toBe('rc-1');
 });
 
 test('workflow_dispatch - master - beta', async () => {
@@ -85,7 +85,7 @@ test('workflow_dispatch - master - beta', async () => {
     runId: '1'
   };
   const releaseType = 'beta';
-  expect(await bvs(github, releaseType)).toBe('beta.1');
+  expect(await bvs(github, releaseType)).toBe('beta-1');
 });
 
 test('workflow_dispatch - master - alpha', async () => {
@@ -96,7 +96,7 @@ test('workflow_dispatch - master - alpha', async () => {
     runId: '1'
   };
   const releaseType = 'alpha';
-  expect(await bvs(github, releaseType)).toBe('alpha.1');
+  expect(await bvs(github, releaseType)).toBe('alpha-1');
 });
 
 test('workflow_dispatch - branch - unsupported', async () => {
@@ -118,7 +118,7 @@ test('workflow_dispatch - branch - rc', async () => {
     runId: '1'
   };
   const releaseType = 'rc';
-  expect(await bvs(github, releaseType)).toBe('rc-fix-some-bug.1');
+  expect(await bvs(github, releaseType)).toBe('rc-fix-some-bug-1');
 });
 
 test('workflow_dispatch - branch - beta', async () => {
@@ -129,7 +129,7 @@ test('workflow_dispatch - branch - beta', async () => {
     runId: '1'
   };
   const releaseType = 'beta';
-  expect(await bvs(github, releaseType)).toBe('beta-fix-some-bug.1');
+  expect(await bvs(github, releaseType)).toBe('beta-fix-some-bug-1');
 });
 
 test('workflow_dispatch - branch - alpha', async () => {
@@ -140,5 +140,5 @@ test('workflow_dispatch - branch - alpha', async () => {
     runId: '1'
   };
   const releaseType = 'alpha';
-  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug.1');
+  expect(await bvs(github, releaseType)).toBe('alpha-fix-some-bug-1');
 });
