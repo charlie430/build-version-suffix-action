@@ -278,9 +278,7 @@ const buildVersionSuffix = __webpack_require__(779);
 async function run() {
   try {
     core.debug('github context: ' + JSON.stringify(github.context, null, 2));
-    const releaseType = core.getInput('releaseType', { required: false, trimWhitespace: true  });
-    core.debug('releaseType: ' + releaseType);
-    const versionSuffix = await buildVersionSuffix(github.context, releaseType);
+    const versionSuffix = await buildVersionSuffix(github.context);
     core.setOutput('versionSuffix', versionSuffix);
   } catch (error) {
     core.setFailed(error.message);
@@ -4561,7 +4559,7 @@ module.exports = require("zlib");
 /***/ 779:
 /***/ (function(module) {
 
-let buildVersionSuffix = function (github, releaseType) {
+let buildVersionSuffix = function (github) {
   return new Promise((resolve) => {
     if (!github) throw 'github context is required';
 
@@ -4573,14 +4571,15 @@ let buildVersionSuffix = function (github, releaseType) {
     let branchName = !headRef || headRef == '' ? ref : headRef;
     branchName = branchName.replace('refs/heads/', '').replace(/[^a-zA-Z0-9-]/g, '-');
 
+    let releaseType = '';
     let includeBranchName = false;
     let includeBuildNumber = false;
 
     // set release type
     switch (eventName) {
       case 'release': // always stable or release candidate for releases
-        releaseType = branchName === 'master' ? '' : 'rc';
-        includeBuildNumber = branchName !== 'master';
+        releaseType = github.payload.release.prerelease ? 'rc' : '';
+        includeBuildNumber = github.payload.release.prerelease;
         break;
       case 'push': // always a beta for pushes
         releaseType = 'beta';
@@ -4593,9 +4592,7 @@ let buildVersionSuffix = function (github, releaseType) {
         includeBuildNumber = true;
         break;
       case 'workflow_dispatch':
-        if (releaseType === '') {
-          throw new Error(`A stable version can only be created via a github release`);
-        }
+        releaseType = 'alpha';
         includeBranchName = branchName !== 'master';
         includeBuildNumber = true;
         break;
